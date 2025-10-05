@@ -26,7 +26,17 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
             name="type"
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="
+              w-full 
+              border 
+              rounded px-3 
+              py-2 
+              transition-all 
+              duration-200 
+              focus:ring-2 
+              focus:ring-blue-500 
+              focurs:border-transparent
+              "
           >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
@@ -38,7 +48,17 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
           <select 
             name="categoryId"
             required
-            className="w-full border rounded px-3 py-2"
+            className="
+              w-full 
+              border 
+              rounded px-3 
+              py-2 
+              transition-all 
+              duration-200 
+              focus:ring-2 
+              focus:ring-blue-500 
+              focurs:border-transparent
+              "
           >
             <option value="">Select category</option>
             {filteredCategories.map((category) => (
@@ -56,7 +76,17 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
             name="amount"
             step="0.01"
             required
-            className="w-full border rounded px-3 py-2"
+            className="
+              w-full 
+              border 
+              rounded px-3 
+              py-2 
+              transition-all 
+              duration-200 
+              focus:ring-2 
+              focus:ring-blue-500 
+              focurs:border-transparent
+              "
             placeholder="0.00"
           />
         </div>
@@ -66,14 +96,36 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
           <input 
             type="text"
             name="description"
-            className="w-full border rounded px-3 py-2"
+            className="
+              w-full 
+              border 
+              rounded px-3 
+              py-2 
+              transition-all 
+              duration-200 
+              focus:ring-2 
+              focus:ring-blue-500 
+              focurs:border-transparent
+              "
             placeholder="Coffee, groceries, etc."
           />
         </div>
         
         <button 
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="
+            w-full 
+            bg-blue-600 
+            text-white 
+            py-2 
+            rounded 
+            hover:bg-blue-700
+            transition-all
+            duration-200
+            hover:shadow-lg
+            hover:scale-[1.02]
+            activate:scale-95
+            "
         >
           Add Transaction
         </button>

@@ -46,10 +46,23 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
           displayedTransactions.map((transaction) => (
             <div 
               key={transaction.id}
-              className="flex items-center justify-between p-3 border rounded hover:bg-gray-50"
+              className="
+                flex 
+                items-center 
+                justify-between 
+                p-3 
+                border 
+                rounded 
+                hover:bg-gray-50 
+                hover:shadow-md 
+                transition-all 
+                duration-200 
+                hover:scale-[1.02] 
+                animate-fadeIn
+                "
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{transaction.category.icon}</span>
+                <span className="text-2xl transition-transform duration-200 hover:scale-125">{transaction.category.icon}</span>
                 <div>
                   <p className="font-medium">{transaction.description || transaction.category.name}</p>
                   <p className="text-sm text-gray-500">
@@ -59,7 +72,7 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
               </div>
               <div className="text-right">
                 <span 
-                  className={`font-semibold ${
+                  className={`font-semibold transition-colors duration-200 ${
                     transaction.type === 'income' 
                       ? 'text-green-600' 
                       : 'text-red-600'
@@ -78,7 +91,24 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
           <button
             onClick={goToPrevPage}
             disabled={currentPage === 1}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="
+              px-4 
+              py-2 
+              text-sm 
+              font-medium 
+              text-gray-700 
+              bg-white 
+              border 
+              rounded 
+              hover:bg-gray-50 
+              disabled:opacity-50 
+              disabled:cursor-not-allowed 
+              transition-all 
+              duration-200 
+              hover:shadow-md 
+              hover:scale-105 
+              activate:scale-95
+              "
           >
             ← Previous
           </button>
@@ -90,7 +120,24 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
           <button
             onClick={goToNextPage}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="
+              px-4 
+              py-2 
+              text-sm 
+              font-medium 
+              text-gray-700 
+              bg-white 
+              border 
+              rounded 
+              hover:bg-gray-50 
+              disabled:opacity-50 
+              disabled:cursor-not-allowed 
+              transition-all 
+              duration-200 
+              hover:shadow-md 
+              hover:scale-105 
+              activate:scale-95
+              "
           >
             Next →
           </button>
