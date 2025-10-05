@@ -1,3 +1,5 @@
+import { createTransaction } from "./actions";
+
 export default function Home() {
   return (
     <main className="min-h-screen text-black p-8 bg-gray-50">
@@ -7,12 +9,14 @@ export default function Home() {
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">Add Transaction</h2>
           
-          <form className="space-y-4">
+          <form action={createTransaction} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Amount</label>
               <input 
                 type="number" 
+                name="amount"
                 step="0.01"
+                required
                 className="w-full border rounded px-3 py-2"
                 placeholder="0.00"
               />
@@ -22,6 +26,7 @@ export default function Home() {
               <label className="block text-sm font-medium mb-1">Description</label>
               <input 
                 type="text"
+                name="description"
                 className="w-full border rounded px-3 py-2"
                 placeholder="Coffee, groceries, etc."
               />
@@ -29,7 +34,7 @@ export default function Home() {
             
             <div>
               <label className="block text-sm font-medium mb-1">Type</label>
-              <select className="w-full border rounded px-3 py-2">
+              <select name="type" className="w-full border rounded px-3 py-2">
                 <option value="expense">Expense</option>
                 <option value="income">Income</option>
               </select>
