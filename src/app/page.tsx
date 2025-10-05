@@ -9,6 +9,10 @@ export default async function Home() {
     include: { category: true },
     orderBy: { date: 'desc' },
   });
+
+  const categories = await prisma.category.findMany({
+    orderBy: { name: 'asc' },
+  });
   return (
     <main className="min-h-screen text-black p-8 bg-gray-50">
       <div className="max-w-4xl mx-auto">
@@ -20,6 +24,53 @@ export default async function Home() {
             <h2 className="text-xl font-semibold mb-4">Add Transaction</h2>
 
             <form action={createTransaction} className="space-y-4">
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Type</label>
+                <select
+                  name="type"
+                  id="type"
+                  className="w-full border rounded px-3 py-2"
+                  onChange={(e) => {
+                    const categorySelect = document.getElementById('category') as HTMLSelectElement
+                    const options = categorySelect.querySelectorAll('option')
+                    options.forEach(option => {
+                      const optionType = option.getAttribute('data-type')
+                      if (optionType && optionType !== e.target.value && option.value !== '') {
+                        option.style.display = 'none'
+                      } else {
+                        option.style.display = 'block'
+                      }
+                    })
+                    categorySelect.value = ''
+                  }}
+                >
+                  <option value="expense">Expense</option>
+                  <option value="income">Income</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Category</label>
+                <select
+                  name="categoryId"
+                  id="category"
+                  className="w-full border rounded px-3 py-2"
+                >
+                  <option value="">Select category</option>
+                  {categories.map((category) => (
+                    <option
+                      key={category.id}
+                      value={category.id}
+                      data-type={category.type}
+                      style={{ display: category.type === 'expense' ? 'block' : 'none' }}
+                    >
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">Amount</label>
                 <input

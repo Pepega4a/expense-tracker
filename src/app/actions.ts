@@ -7,8 +7,7 @@ export async function createTransaction(formData: FormData) {
     const amount = parseFloat(formData.get('amount') as string)
     const description = formData.get('description') as string
     const type = formData.get('type') as string
-
-    //TODO: add category
+    const categoryId = formData.get('categoryId') as string
 
     try {
         await prisma.transaction.create({
@@ -17,7 +16,7 @@ export async function createTransaction(formData: FormData) {
                 description,
                 type,
                 userId: 'test-user-id', // Temp 
-                categoryId: "test-category-id" // Temp
+                categoryId,
             },
         })
 
