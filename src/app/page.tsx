@@ -1,6 +1,9 @@
 import { createTransaction } from "./actions";
 import { prisma } from "@/lib/prisma";
 
+//components
+import { TransactionsList } from "@/components/TransactionsList";
+
 export default async function Home() {
   const transactions = await prisma.transaction.findMany({
     include: { category: true },
@@ -56,43 +59,7 @@ export default async function Home() {
             </form>
           </div>
 
-          {/* Transactions List */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
-
-            <div className="space-y-3">
-              {transactions.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No transactions yet</p>
-              ) : (
-                transactions.map((transaction) => (
-                  <div
-                    key={transaction.id}
-                    className="flex items-center justify-between p-3 border rounded hover:bg-gray-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{transaction.category.icon}</span>
-                      <div>
-                        <p className="font-medium">{transaction.description || transaction.category.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {new Date(transaction.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`font-semibold ${transaction.type === 'income'
-                            ? 'text-green-600'
-                            : 'text-red-600'
-                          }`}
-                      >
-                        {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          <TransactionsList transactions={transactions} />
         </div>
       </div>
     </main>
