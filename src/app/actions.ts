@@ -8,6 +8,7 @@ export async function createTransaction(formData: FormData) {
     const description = formData.get('description') as string
     const type = formData.get('type') as string
     const categoryId = formData.get('categoryId') as string
+    const date = formData.get('date') as string
 
     try {
         await prisma.transaction.create({
