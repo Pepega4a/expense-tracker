@@ -15,6 +15,13 @@ export default async function Home() {
   const categories = await prisma.category.findMany({
     orderBy: { name: 'asc' },
   });
+
+  const serializedTransactions = transactions.map(tx => ({
+    ...tx,
+    date: tx.date.toISOString(),
+    createdAt: tx.createdAt.toISOString(),
+    updatedAt: tx.updatedAt.toISOString(),
+  }));
   return (
     <main className="min-h-screen text-black p-8 bg-gray-50">
       <div className="max-w-4xl mx-auto">

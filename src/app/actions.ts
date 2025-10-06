@@ -25,3 +25,17 @@ export async function createTransaction(formData: FormData) {
         console.error('Error creating transaction:', err)
     }
 }
+
+export async function deleteTransaction(transactionId: string) {
+    try {
+        await prisma.transaction.delete({
+            where: { 
+                id: transactionId 
+            },
+        })
+
+        revalidatePath('/')
+    } catch (err) {
+        console.error('Error deleting transaction:', err)
+    }
+}

@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { deleteTransaction } from '@/app/actions'
+import { Trash2 } from 'lucide-react'
 
 type Transaction = {
   id: string
@@ -35,6 +37,12 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
     }
   }
 
+  const handleDelete = async (id: string) => {
+    if (confirm('Delete this transaction?')) {
+      await deleteTransaction(id)
+    }
+  }
+
   return (
     <div className="bg-white p-6 rounded-lg shadow">
       <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
@@ -43,43 +51,62 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
         {displayedTransactions.length === 0 ? (
           <p className="text-gray-500 text-center py-4">No transactions yet</p>
         ) : (
-          displayedTransactions.map((transaction) => (
+          displayedTransactions.map((transaction, index) => (
             <div 
               key={transaction.id}
               className="
-                flex 
-                items-center 
-                justify-between 
-                p-3 
-                border 
-                rounded 
-                hover:bg-gray-50 
-                hover:shadow-md 
-                transition-all 
-                duration-200 
-                hover:scale-[1.02] 
+                flex
+                items-center
+                justify-between
+                p-3
+                border
+                rounded
+                hover:bg-gray-50
+                hover:shadow-md
+                transition-all
+                duration-200
+                hover:scale-[1.02]
                 animate-fadeIn
-                "
+                group
+              "
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl transition-transform duration-200 hover:scale-125">{transaction.category.icon}</span>
+                <span className="text-2xl transition-transform duration-200 hover:scale-125">
+                  {transaction.category.icon}
+                </span>
                 <div>
                   <p className="font-medium">{transaction.description || transaction.category.name}</p>
                   <p className="text-sm text-gray-500">
-                    {new Date(transaction.date).toLocaleDateString()}
+                    {new Date(transaction.date).toLocaleDateString('en-CA')}
                   </p>
                 </div>
               </div>
-              <div className="text-right">
-                <span 
-                  className={`font-semibold transition-colors duration-200 ${
-                    transaction.type === 'income' 
-                      ? 'text-green-600' 
-                      : 'text-red-600'
-                  }`}
-                >
+              <div className="flex items-center gap-3">
+                <span className={`
+                  font-semibold
+                  transition-colors
+                  duration-200
+                  ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}
+                `}>
                   {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
                 </span>
+                <button
+                  onClick={() => handleDelete(transaction.id)}
+                  className="
+                    opacity-0
+                    group-hover:opacity-100
+                    transition-opacity
+                    duration-200
+                    p-2
+                    hover:bg-red-50
+                    rounded
+                    text-red-600
+                  "
+                  aria-label="Delete transaction"
+                >
+                  <Trash2 size={18} />
+                </button>
               </div>
             </div>
           ))
@@ -92,23 +119,23 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
             onClick={goToPrevPage}
             disabled={currentPage === 1}
             className="
-              px-4 
-              py-2 
-              text-sm 
-              font-medium 
-              text-gray-700 
-              bg-white 
-              border 
-              rounded 
-              hover:bg-gray-50 
-              disabled:opacity-50 
-              disabled:cursor-not-allowed 
-              transition-all 
-              duration-200 
-              hover:shadow-md 
-              hover:scale-105 
-              activate:scale-95
-              "
+              px-4
+              py-2
+              text-sm
+              font-medium
+              text-gray-700
+              bg-white
+              border
+              rounded
+              hover:bg-gray-50
+              disabled:opacity-50
+              disabled:cursor-not-allowed
+              transition-all
+              duration-200
+              hover:shadow-md
+              hover:scale-105
+              active:scale-95
+            "
           >
             ← Previous
           </button>
@@ -121,23 +148,23 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
             onClick={goToNextPage}
             disabled={currentPage === totalPages}
             className="
-              px-4 
-              py-2 
-              text-sm 
-              font-medium 
-              text-gray-700 
-              bg-white 
-              border 
-              rounded 
-              hover:bg-gray-50 
-              disabled:opacity-50 
-              disabled:cursor-not-allowed 
-              transition-all 
-              duration-200 
-              hover:shadow-md 
-              hover:scale-105 
-              activate:scale-95
-              "
+              px-4
+              py-2
+              text-sm
+              font-medium
+              text-gray-700
+              bg-white
+              border
+              rounded
+              hover:bg-gray-50
+              disabled:opacity-50
+              disabled:cursor-not-allowed
+              transition-all
+              duration-200
+              hover:shadow-md
+              hover:scale-105
+              active:scale-95
+            "
           >
             Next →
           </button>
