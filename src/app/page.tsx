@@ -31,7 +31,7 @@ export default async function Home() {
 
         <div className="grid gap-6 md:grid-cols-2">
           <TransactionForm categories={categories} />
-          <TransactionsList transactions={transactions} />
+          <TransactionsList transactions={transactions} categories={categories}/>
         </div>
       </div>
     </main>

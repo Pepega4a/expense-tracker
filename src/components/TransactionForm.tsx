@@ -61,9 +61,9 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
               "
           >
             <option value="">Select category</option>
-            {filteredCategories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.icon} {category.name}
+            {filteredCategories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.icon} {cat.name}
               </option>
             ))}
           </select>

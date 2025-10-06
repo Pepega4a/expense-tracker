@@ -7,12 +7,12 @@ type BalanceCardProps = {
 
 export function BalanceCard({ transactions }: BalanceCardProps) {
     const income = transactions
-        .filter((t) => t.type === 'income')
-        .reduce((sum, t) => sum + t.amount, 0)
+        .filter((trs) => trs.type === 'income')
+        .reduce((sum, trs) => sum + trs.amount, 0)
 
     const expense = transactions
-        .filter((t) => t.type === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0)
+        .filter((trs) => trs.type === 'expense')
+        .reduce((sum, trs) => sum + trs.amount, 0)
 
     const balance = income - expense
 
