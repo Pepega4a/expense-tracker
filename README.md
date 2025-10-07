@@ -1,36 +1,162 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💰 Expense Tracker
 
-## Getting Started
+A modern, full-stack expense tracking application built with Next.js, Prisma, and TypeScript.
 
-First, run the development server:
+## ✨ Features
 
+- 📊 **Transaction Management** - Add, edit, and delete income/expense transactions
+- 🏷️ **Category Filtering** - Organize transactions by custom categories
+- 💱 **Multi-Currency Support** - Track expenses in multiple currencies with automatic conversion
+- 🌐 **Live Exchange Rates** - Real-time currency conversion using live API data
+- 🌙 **Dark Mode** - Toggle between light and dark themes
+- 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
+- 📈 **Balance Overview** - Real-time tracking of income, expenses, and total balance
+- 🔍 **Advanced Filtering** - Filter by transaction type and category
+- 📄 **Pagination** - Easy navigation through transaction history
+
+## 🛠️ Tech Stack
+
+**Frontend:**
+- Next.js 15 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS
+- Lucide React (icons)
+
+**Backend:**
+- Next.js API Routes
+- Prisma ORM
+- SQLite (development) / PostgreSQL (production)
+
+**APIs:**
+- Exchange Rate API for live currency conversion
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- Git
+
+### Installation
+
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Pepega4a/expense-tracker.git
+cd expense-tracker
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up the database
+```bash
+npx prisma migrate dev --name init
+npm run prisma:seed
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server
+```bash
+npm run dev
+```
 
-## Learn More
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Available Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm start            # Start production server
+npm run lint         # Run ESLint
+npm run prisma:seed  # Seed database with sample data
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎨 Features in Detail
 
-## Deploy on Vercel
+### Transaction Management
+- Create transactions with amount, category, date, and description
+- Edit existing transactions with a modal interface
+- Delete transactions with confirmation
+- Automatic date selection (defaults to today)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Currency Conversion
+- Support for USD, EUR, GBP, RUB, JPY, and CNY
+- Automatic conversion to selected display currency
+- Shows original currency for converted transactions
+- 24-hour caching of exchange rates
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Dark Mode
+- System-wide dark theme support
+- Persistent theme preference
+- Smooth transitions between themes
+
+## 🗂️ Project Structure
+
+```
+expense-tracker/
+├── prisma/
+│   ├── schema.prisma       # Database schema
+│   └── seed.ts             # Seed data
+├── src/
+│   ├── app/
+│   │   ├── actions.ts      # Server actions
+│   │   ├── page.tsx        # Main page
+│   │   └── api/            # API routes
+│   ├── components/
+│   │   ├── BalanceCard.tsx
+│   │   ├── TransactionForm.tsx
+│   │   ├── TransactionsList.tsx
+│   │   ├── EditTransactionModal.tsx
+│   │   ├── ThemeToggle.tsx
+│   │   └── CurrencyProvider.tsx
+│   └── lib/
+│       ├── prisma.ts       # Prisma client
+│       ├── currency.ts     # Currency utilities
+│       └── exchangeRates.ts # Exchange rate API
+└── README.md
+```
+
+## 🌐 Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Import project in Vercel
+3. Add Vercel Postgres database
+4. Deploy automatically
+
+### Environment Variables
+
+```env
+DATABASE_URL="your_database_url"
+```
+
+## 📝 Future Enhancements
+
+- [ ] Charts and analytics
+- [ ] Budget tracking
+- [ ] Recurring transactions
+- [ ] Export to CSV/PDF
+- [ ] Multi-user authentication
+- [ ] Mobile app
+
+## 👤 Author
+
+**Vsevolod**
+- GitHub: [@Pepega4a](https://github.com/Pepega4a)
+- LinkedIn: [Seva Titov](https://linkedin.com/in/seva-titov-3a38532ba/)
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+---
+
+⭐️ If you like this project, please give it a star on GitHub!

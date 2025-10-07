@@ -1,9 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
-    //test user
     const user = await prisma.user.upsert({
         where: { email: 'test@example.com' },
         update: {},
@@ -12,39 +11,34 @@ async function main() {
             email: 'test@example.com',
             name: 'Test User',
         },
-    });
-
-    //expense category
-    const foodCategory = await prisma.category.upsert({
-        where: { id: 'test-category-id' },
-        update: {},
-        create: {
-            id: 'test-category-id',
-            name: 'Food',
-            type: 'expense',
-            icon: '🍔',
-        },
     })
 
-    await prisma.category.createMany({
-        data: [
-            { name: 'Transport', type: 'expense', icon: '🚗' },
-            { name: 'Entertainment', type: 'expense', icon: '🎬' },
-            { name: 'Shopping', type: 'expense', icon: '🛒' },
-            { name: 'Salary', type: 'income', icon: '💰' },
-            { name: 'Freelance', type: 'income', icon: '💼' },
-        ],
-    })
+    const categories = [
+        { id: 'test-category-id', name: 'Food', type: 'expense', icon: '🍔' },
+        { id: 'cat-transport', name: 'Transport', type: 'expense', icon: '🚗' },
+        { id: 'cat-entertainment', name: 'Entertainment', type: 'expense', icon: '🎬' },
+        { id: 'cat-shopping', name: 'Shopping', type: 'expense', icon: '🛒' },
+        { id: 'cat-salary', name: 'Salary', type: 'income', icon: '💰' },
+        { id: 'cat-freelance', name: 'Freelance', type: 'income', icon: '💼' },
+    ]
 
-    console.log('Database seeded successfully.')
-    console.log({ user, foodCategory})
+    for (const category of categories) {
+        await prisma.category.upsert({
+            where: { id: category.id },
+            update: {},
+            create: category,
+        })
+    }
+
+    console.log('Database seeded!')
+    console.log({ user, categoriesCount: categories.length })
 }
 
 main()
     .catch((e) => {
-        console.error(e);
-        process.exit(1);
+        console.error(e)
+        process.exit(1)
     })
     .finally(async () => {
-        await prisma.$disconnect();
-    });
+        await prisma.$disconnect()
+    })

@@ -15,6 +15,28 @@ type BalanceCardProps = {
   onCurrencyChange: (currency: string) => void
 }
 
+const formatAmount = (amount: number) => {
+  if (!isFinite(amount) || isNaN(amount)) return '0.00'
+
+  const MAX_VALUE = 999999999999.99
+  const clampedAmount = Math.min(Math.abs(amount), MAX_VALUE)
+
+  if (clampedAmount >= 1000000000) {
+    return (clampedAmount / 1000000000).toFixed(2) + 'B'
+  }
+  if (clampedAmount >= 1000000) {
+    return (clampedAmount / 1000000).toFixed(2) + 'M'
+  }
+  if (clampedAmount >= 1000) {
+    return (clampedAmount / 1000).toFixed(2) + 'K'
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(clampedAmount)
+}
+
 export function BalanceCard({ transactions, displayCurrency, onCurrencyChange }: BalanceCardProps) {
   const [rates, setRates] = useState<Record<string, number> | null>(null)
   const [loading, setLoading] = useState(true)
@@ -56,41 +78,78 @@ export function BalanceCard({ transactions, displayCurrency, onCurrencyChange }:
   const balance = income - expenses
   const symbol = getCurrencySymbol(displayCurrency)
 
-  const formatAmount = (amount: number) => {
-    if (!isFinite(amount) || isNaN(amount)) return '0.00'
+  if (loading) {
+    return (
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-lg font-semibold text-black dark:text-white">Balance Overview</h2>
+          <select
+            value={displayCurrency}
+            onChange={(e) => onCurrencyChange(e.target.value)}
+            className="
+              border
+              border-gray-300
+              dark:border-gray-600
+              rounded
+              px-3
+              py-1
+              text-sm
+              bg-white
+              dark:bg-gray-700
+              text-black
+              dark:text-white
+              focus:ring-2
+              focus:ring-blue-500
+              focus:border-transparent
+            "
+          >
+            {CURRENCIES.map((currency) => (
+              <option key={currency.code} value={currency.code}>
+                {currency.symbol} {currency.code}
+              </option>
+            ))}
+          </select>
+        </div>
 
-    const MAX_VALUE = 9007199254740991.99
-    const clampedAmount = Math.min(Math.abs(amount), MAX_VALUE)
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow dark:shadow-gray-700 border border-transparent dark:border-gray-700">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Income</p>
+            <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">Loading...</p>
+          </div>
 
-    if (clampedAmount >= 1000000000) {
-      return (clampedAmount / 1000000000).toFixed(2) + 'B'
-    }
-    if (clampedAmount >= 1000000) {
-      return (clampedAmount / 1000000).toFixed(2) + 'M'
-    }
-    if (clampedAmount >= 1000) {
-      return (clampedAmount / 1000).toFixed(2) + 'K'
-    }
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow dark:shadow-gray-700 border border-transparent dark:border-gray-700">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Expenses</p>
+            <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">Loading...</p>
+          </div>
 
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(clampedAmount)
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow dark:shadow-gray-700 border border-transparent dark:border-gray-700">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Balance</p>
+            <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">Loading...</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="mb-6">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="text-lg font-semibold">Balance Overview</h2>
+        <h2 className="text-lg font-semibold text-black dark:text-white">Balance Overview</h2>
         <select
           value={displayCurrency}
           onChange={(e) => onCurrencyChange(e.target.value)}
           className="
             border
+            border-gray-300
+            dark:border-gray-600
             rounded
             px-3
             py-1
             text-sm
+            bg-white
+            dark:bg-gray-700
+            text-black
+            dark:text-white
             focus:ring-2
             focus:ring-blue-500
             focus:border-transparent
@@ -105,23 +164,23 @@ export function BalanceCard({ transactions, displayCurrency, onCurrencyChange }:
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <p className="text-sm text-gray-600 mb-1">Total Income</p>
-          <p className="text-2xl font-bold text-green-600">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow dark:shadow-gray-700 border border-transparent dark:border-gray-700">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Income</p>
+          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
             +{symbol}{formatAmount(income)}
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <p className="text-sm text-gray-600 mb-1">Total Expenses</p>
-          <p className="text-2xl font-bold text-red-600">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow dark:shadow-gray-700 border border-transparent dark:border-gray-700">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Expenses</p>
+          <p className="text-2xl font-bold text-red-600 dark:text-red-400">
             -{symbol}{formatAmount(expenses)}
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <p className="text-sm text-gray-600 mb-1">Balance</p>
-          <p className={`text-2xl font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow dark:shadow-gray-700 border border-transparent dark:border-gray-700">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Balance</p>
+          <p className={`text-2xl font-bold ${balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
             {symbol}{formatAmount(balance)}
           </p>
         </div>

@@ -41,13 +41,35 @@ const formatDate = (date: Date) => {
   }).format(new Date(date))
 }
 
+const formatAmount = (amount: number) => {
+  if (!isFinite(amount) || isNaN(amount)) return '0.00'
+  
+  const MAX_VALUE = 999999999999.99
+  const clampedAmount = Math.min(Math.abs(amount), MAX_VALUE)
+  
+  if (clampedAmount >= 1000000000) {
+    return (clampedAmount / 1000000000).toFixed(2) + 'B'
+  }
+  if (clampedAmount >= 1000000) {
+    return (clampedAmount / 1000000).toFixed(2) + 'M'
+  }
+  if (clampedAmount >= 1000) {
+    return (clampedAmount / 1000).toFixed(2) + 'K'
+  }
+  
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(clampedAmount)
+}
+
 export function TransactionsList({ transactions, categories, displayCurrency }: Props) {
   const [currentPage, setCurrentPage] = useState(1)
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
   const [selectedType, setSelectedType] = useState('all')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [rates, setRates] = useState<Record<string, number> | null>(null)
-
+  
   const itemsPerPage = 5
 
   useEffect(() => {
@@ -59,12 +81,12 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
 
   const convertAmount = (amount: number, fromCurrency: string) => {
     if (!rates || fromCurrency === displayCurrency) return amount
-
+    
     const fromRate = rates[fromCurrency]
     const toRate = rates[displayCurrency]
-
+    
     if (!fromRate || !toRate || fromRate === 0) return amount
-
+    
     const amountInUSD = amount / fromRate
     return amountInUSD * toRate
   }
@@ -118,35 +140,13 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
 
   const symbol = getCurrencySymbol(displayCurrency)
 
-  const formatAmount = (amount: number) => {
-    if (!isFinite(amount) || isNaN(amount)) return '0.00'
-
-    const MAX_VALUE = 9007199254740991.99
-    const clampedAmount = Math.min(Math.abs(amount), MAX_VALUE)
-
-    if (clampedAmount >= 1000000000) {
-      return (clampedAmount / 1000000000).toFixed(2) + 'B'
-    }
-    if (clampedAmount >= 1000000) {
-      return (clampedAmount / 1000000).toFixed(2) + 'M'
-    }
-    if (clampedAmount >= 1000) {
-      return (clampedAmount / 1000).toFixed(2) + 'K'
-    }
-
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(clampedAmount)
-  }
-
   return (
     <>
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow dark:shadow-gray-700 border border-transparent dark:border-gray-700">
+        <h2 className="text-xl font-semibold mb-4 text-black dark:text-white">
           Recent Transactions
           {filteredTransactions.length !== transactions.length && (
-            <span className="text-sm text-gray-500 ml-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
               ({filteredTransactions.length})
             </span>
           )}
@@ -154,17 +154,23 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
 
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
-            <label className="block text-xs font-medium mb-1 text-gray-600">Type</label>
-            <select
+            <label className="block text-xs font-medium mb-1 text-black dark:text-white">Type</label>
+            <select 
               value={selectedType}
               onChange={(e) => handleTypeChange(e.target.value)}
               className="
                 w-full
                 border
+                border-gray-300
+                dark:border-gray-600
                 rounded
                 px-3
                 py-2
                 text-sm
+                bg-white
+                dark:bg-gray-700
+                text-black
+                dark:text-white
                 focus:ring-2
                 focus:ring-blue-500
                 focus:border-transparent
@@ -177,17 +183,23 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1 text-gray-600">Category</label>
-            <select
+            <label className="block text-xs font-medium mb-1 text-black dark:text-white">Category</label>
+            <select 
               value={selectedCategory}
               onChange={(e) => handleCategoryChange(e.target.value)}
               className="
                 w-full
                 border
+                border-gray-300
+                dark:border-gray-600
                 rounded
                 px-3
                 py-2
                 text-sm
+                bg-white
+                dark:bg-gray-700
+                text-black
+                dark:text-white
                 focus:ring-2
                 focus:ring-blue-500
                 focus:border-transparent
@@ -202,27 +214,30 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
             </select>
           </div>
         </div>
-
+        
         <div className="space-y-3 min-h-[400px]">
           {displayedTransactions.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">
+            <p className="text-gray-500 dark:text-gray-400 text-center py-4">
               {filteredTransactions.length === 0 ? 'No transactions match the filters' : 'No transactions yet'}
             </p>
           ) : (
             displayedTransactions.map((transaction, index) => {
               const convertedAmount = convertAmount(transaction.amount, transaction.currency)
               return (
-                <div
+                <div 
                   key={transaction.id}
                   className="
                     flex
-                    justify-between
                     items-center
+                    justify-between
                     p-3
                     pr-16
                     border
+                    border-gray-200
+                    dark:border-gray-700
                     rounded
                     hover:bg-gray-50
+                    dark:hover:bg-gray-700
                     hover:shadow-md
                     transition-all
                     duration-200
@@ -233,30 +248,32 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
                   "
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl transition-transform duration-200 hover:scale-125">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <span className="text-2xl transition-transform duration-200 hover:scale-125 flex-shrink-0">
                       {transaction.category.icon}
                     </span>
-                    <div>
-                      <p className="font-medium">{transaction.description || transaction.category.name}</p>
-                      <p className="text-sm text-gray-500">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate text-black dark:text-white">
+                        {transaction.description || transaction.category.name}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                         {formatDate(transaction.date)}
                         {transaction.currency !== displayCurrency && (
-                          <span className="ml-2 text-xs text-gray-400">
+                          <span className="ml-2 text-xs">
                             (Original: {getCurrencySymbol(transaction.currency)}{formatAmount(transaction.amount)})
                           </span>
                         )}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <span className={`
                       font-semibold
                       transition-colors
                       duration-200
-                      min-w-[120px]
+                      min-w-[100px]
                       text-right
-                      ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}
+                      ${transaction.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}
                     `}>
                       {transaction.type === 'income' ? '+' : '-'}{symbol}{formatAmount(convertedAmount)}
                     </span>
@@ -270,19 +287,21 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
                       absolute
                       right-3
                       bg-white
+                      dark:bg-gray-800
                       rounded
                       shadow
+                      dark:shadow-gray-700
                     ">
                       <button
                         onClick={() => handleEdit(transaction)}
-                        className="p-2 hover:bg-blue-50 rounded text-blue-600"
+                        className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900 rounded text-blue-600 dark:text-blue-400"
                         aria-label="Edit transaction"
                       >
                         <Pencil size={18} />
                       </button>
                       <button
                         onClick={() => handleDelete(transaction.id)}
-                        className="p-2 hover:bg-red-50 rounded text-red-600"
+                        className="p-2 hover:bg-red-50 dark:hover:bg-red-900 rounded text-red-600 dark:text-red-400"
                         aria-label="Delete transaction"
                       >
                         <Trash2 size={18} />
@@ -296,7 +315,7 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4 pt-4 border-t">
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={goToPrevPage}
               disabled={currentPage === 1}
@@ -305,11 +324,16 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
                 py-2
                 text-sm
                 font-medium
-                text-gray-700
+                text-black
+                dark:text-white
                 bg-white
+                dark:bg-gray-700
                 border
+                border-gray-300
+                dark:border-gray-600
                 rounded
                 hover:bg-gray-50
+                dark:hover:bg-gray-600
                 disabled:opacity-50
                 disabled:cursor-not-allowed
                 transition-all
@@ -321,11 +345,11 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
             >
               ← Previous
             </button>
-
-            <span className="text-sm text-gray-600">
+            
+            <span className="text-sm text-black dark:text-white">
               Page {currentPage} of {totalPages}
             </span>
-
+            
             <button
               onClick={goToNextPage}
               disabled={currentPage === totalPages}
@@ -334,11 +358,16 @@ export function TransactionsList({ transactions, categories, displayCurrency }: 
                 py-2
                 text-sm
                 font-medium
-                text-gray-700
+                text-black
+                dark:text-white
                 bg-white
+                dark:bg-gray-700
                 border
+                border-gray-300
+                dark:border-gray-600
                 rounded
                 hover:bg-gray-50
+                dark:hover:bg-gray-600
                 disabled:opacity-50
                 disabled:cursor-not-allowed
                 transition-all
