@@ -2,6 +2,7 @@
 
 import { createTransaction } from '@/app/actions'
 import { useState } from 'react'
+import { CURRENCIES } from '@/lib/currency'
 
 type Category = {
   id: string
@@ -10,9 +11,13 @@ type Category = {
   icon: string | null
 }
 
-export function TransactionForm({ categories }: { categories: Category[] }) {
-  const [selectedType, setSelectedType] = useState('expense')
+type Props = {
+  categories: Category[]
+  defaultCurrency: string
+}
 
+export function TransactionForm({ categories, defaultCurrency }: Props) {
+  const [selectedType, setSelectedType] = useState('expense')
   const filteredCategories = categories.filter(cat => cat.type === selectedType)
 
   return (
@@ -27,16 +32,17 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
             className="
-              w-full 
-              border 
-              rounded px-3 
-              py-2 
-              transition-all 
-              duration-200 
-              focus:ring-2 
-              focus:ring-blue-500 
-              focurs:border-transparent
-              "
+              w-full
+              border
+              rounded
+              px-3
+              py-2
+              transition-all
+              duration-200
+              focus:ring-2
+              focus:ring-blue-500
+              focus:border-transparent
+            "
           >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
@@ -49,48 +55,81 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
             name="categoryId"
             required
             className="
-              w-full 
-              border 
-              rounded px-3 
-              py-2 
-              transition-all 
-              duration-200 
-              focus:ring-2 
-              focus:ring-blue-500 
-              focurs:border-transparent
-              "
+              w-full
+              border
+              rounded
+              px-3
+              py-2
+              transition-all
+              duration-200
+              focus:ring-2
+              focus:ring-blue-500
+              focus:border-transparent
+            "
           >
             <option value="">Select category</option>
-            {filteredCategories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.icon} {cat.name}
+            {filteredCategories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.icon} {category.name}
               </option>
             ))}
           </select>
         </div>
-        
-        <div>
-          <label className="block text-sm font-medium mb-1">Amount</label>
-          <input 
-            type="number" 
-            name="amount"
-            step="0.01"
-            required
-            className="
-              w-full 
-              border 
-              rounded px-3 
-              py-2 
-              transition-all 
-              duration-200 
-              focus:ring-2 
-              focus:ring-blue-500 
-              focurs:border-transparent
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium mb-1">Amount</label>
+            <input 
+              type="number" 
+              name="amount"
+              step="0.01"
+              min={0}
+              max={9007199254740991}
+              required
+              className="
+                w-full
+                border
+                rounded
+                px-3
+                py-2
+                transition-all
+                duration-200
+                focus:ring-2
+                focus:ring-blue-500
+                focus:border-transparent
               "
-            placeholder="0.00"
-          />
+              placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Currency</label>
+            <select 
+              name="currency"
+              defaultValue={defaultCurrency}
+              key={defaultCurrency}
+              className="
+                w-full
+                border
+                rounded
+                px-3
+                py-2
+                transition-all
+                duration-200
+                focus:ring-2
+                focus:ring-blue-500
+                focus:border-transparent
+              "
+            >
+              {CURRENCIES.map((currency) => (
+                <option key={currency.code} value={currency.code}>
+                  {currency.symbol} {currency.code}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium mb-1">Date</label>
           <input 
@@ -109,26 +148,27 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
               focus:ring-2
               focus:ring-blue-500
               focus:border-transparent
-              "
+            "
           />
         </div>
-
+        
         <div>
           <label className="block text-sm font-medium mb-1">Description</label>
           <input 
             type="text"
             name="description"
             className="
-              w-full 
-              border 
-              rounded px-3 
-              py-2 
-              transition-all 
-              duration-200 
-              focus:ring-2 
-              focus:ring-blue-500 
-              focurs:border-transparent
-              "
+              w-full
+              border
+              rounded
+              px-3
+              py-2
+              transition-all
+              duration-200
+              focus:ring-2
+              focus:ring-blue-500
+              focus:border-transparent
+            "
             placeholder="Coffee, groceries, etc."
           />
         </div>
@@ -136,18 +176,18 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
         <button 
           type="submit"
           className="
-            w-full 
-            bg-blue-600 
-            text-white 
-            py-2 
-            rounded 
+            w-full
+            bg-blue-600
+            text-white
+            py-2
+            rounded
             hover:bg-blue-700
             transition-all
             duration-200
             hover:shadow-lg
             hover:scale-[1.02]
-            activate:scale-95
-            "
+            active:scale-95
+          "
         >
           Add Transaction
         </button>

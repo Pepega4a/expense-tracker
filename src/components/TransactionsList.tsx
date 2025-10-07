@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { deleteTransaction, updateTransaction } from '@/app/actions'
 import { Trash2, Pencil } from 'lucide-react'
 import { EditTransactionModal } from './EditTransactionModal'
+import { getCurrencySymbol } from '@/lib/currency'
 
 type Transaction = {
   id: string
@@ -12,6 +13,7 @@ type Transaction = {
   date: Date
   type: string
   categoryId: string
+  currency: string
   category: {
     name: string
     icon: string | null
@@ -28,6 +30,7 @@ type Category = {
 type Props = {
   transactions: Transaction[]
   categories: Category[]
+  displayCurrency: string
 }
 
 const formatDate = (date: Date) => {
@@ -38,13 +41,33 @@ const formatDate = (date: Date) => {
   }).format(new Date(date))
 }
 
-export function TransactionsList({ transactions, categories }: Props) {
+export function TransactionsList({ transactions, categories, displayCurrency }: Props) {
   const [currentPage, setCurrentPage] = useState(1)
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
   const [selectedType, setSelectedType] = useState('all')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  
+  const [rates, setRates] = useState<Record<string, number> | null>(null)
+
   const itemsPerPage = 5
+
+  useEffect(() => {
+    fetch('/api/exchange-rates')
+      .then(res => res.json())
+      .then(data => setRates(data.rates))
+      .catch(err => console.error('Failed to load rates:', err))
+  }, [])
+
+  const convertAmount = (amount: number, fromCurrency: string) => {
+    if (!rates || fromCurrency === displayCurrency) return amount
+
+    const fromRate = rates[fromCurrency]
+    const toRate = rates[displayCurrency]
+
+    if (!fromRate || !toRate || fromRate === 0) return amount
+
+    const amountInUSD = amount / fromRate
+    return amountInUSD * toRate
+  }
 
   const filteredTransactions = transactions.filter(t => {
     const typeMatch = selectedType === 'all' || t.type === selectedType
@@ -93,6 +116,30 @@ export function TransactionsList({ transactions, categories }: Props) {
     setCurrentPage(1)
   }
 
+  const symbol = getCurrencySymbol(displayCurrency)
+
+  const formatAmount = (amount: number) => {
+    if (!isFinite(amount) || isNaN(amount)) return '0.00'
+
+    const MAX_VALUE = 9007199254740991.99
+    const clampedAmount = Math.min(Math.abs(amount), MAX_VALUE)
+
+    if (clampedAmount >= 1000000000) {
+      return (clampedAmount / 1000000000).toFixed(2) + 'B'
+    }
+    if (clampedAmount >= 1000000) {
+      return (clampedAmount / 1000000).toFixed(2) + 'M'
+    }
+    if (clampedAmount >= 1000) {
+      return (clampedAmount / 1000).toFixed(2) + 'K'
+    }
+
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(clampedAmount)
+  }
+
   return (
     <>
       <div className="bg-white p-6 rounded-lg shadow">
@@ -108,7 +155,7 @@ export function TransactionsList({ transactions, categories }: Props) {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
             <label className="block text-xs font-medium mb-1 text-gray-600">Type</label>
-            <select 
+            <select
               value={selectedType}
               onChange={(e) => handleTypeChange(e.target.value)}
               className="
@@ -131,7 +178,7 @@ export function TransactionsList({ transactions, categories }: Props) {
 
           <div>
             <label className="block text-xs font-medium mb-1 text-gray-600">Category</label>
-            <select 
+            <select
               value={selectedCategory}
               onChange={(e) => handleCategoryChange(e.target.value)}
               className="
@@ -155,72 +202,96 @@ export function TransactionsList({ transactions, categories }: Props) {
             </select>
           </div>
         </div>
-        
+
         <div className="space-y-3 min-h-[400px]">
           {displayedTransactions.length === 0 ? (
             <p className="text-gray-500 text-center py-4">
               {filteredTransactions.length === 0 ? 'No transactions match the filters' : 'No transactions yet'}
             </p>
           ) : (
-            displayedTransactions.map((transaction, index) => (
-              <div 
-                key={transaction.id}
-                className="
-                  flex
-                  items-center
-                  justify-between
-                  p-3
-                  border
-                  rounded
-                  hover:bg-gray-50
-                  hover:shadow-md
-                  transition-all
-                  duration-200
-                  hover:scale-[1.02]
-                  animate-fadeIn
-                  group
-                "
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl transition-transform duration-200 hover:scale-125">
-                    {transaction.category.icon}
-                  </span>
-                  <div>
-                    <p className="font-medium">{transaction.description || transaction.category.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {formatDate(transaction.date)}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`
-                    font-semibold
-                    transition-colors
+            displayedTransactions.map((transaction, index) => {
+              const convertedAmount = convertAmount(transaction.amount, transaction.currency)
+              return (
+                <div
+                  key={transaction.id}
+                  className="
+                    flex
+                    justify-between
+                    items-center
+                    p-3
+                    pr-16
+                    border
+                    rounded
+                    hover:bg-gray-50
+                    hover:shadow-md
+                    transition-all
                     duration-200
-                    ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}
-                  `}>
-                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                  </span>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <button
-                      onClick={() => handleEdit(transaction)}
-                      className="p-2 hover:bg-blue-50 rounded text-blue-600"
-                      aria-label="Edit transaction"
-                    >
-                      <Pencil size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(transaction.id)}
-                      className="p-2 hover:bg-red-50 rounded text-red-600"
-                      aria-label="Delete transaction"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    hover:scale-[1.02]
+                    animate-fadeIn
+                    group
+                    relative
+                  "
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl transition-transform duration-200 hover:scale-125">
+                      {transaction.category.icon}
+                    </span>
+                    <div>
+                      <p className="font-medium">{transaction.description || transaction.category.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {formatDate(transaction.date)}
+                        {transaction.currency !== displayCurrency && (
+                          <span className="ml-2 text-xs text-gray-400">
+                            (Original: {getCurrencySymbol(transaction.currency)}{formatAmount(transaction.amount)})
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`
+                      font-semibold
+                      transition-colors
+                      duration-200
+                      min-w-[120px]
+                      text-right
+                      ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}
+                    `}>
+                      {transaction.type === 'income' ? '+' : '-'}{symbol}{formatAmount(convertedAmount)}
+                    </span>
+                    <div className="
+                      flex
+                      gap-1
+                      opacity-0
+                      group-hover:opacity-100
+                      transition-opacity
+                      duration-200
+                      absolute
+                      right-3
+                      bg-white
+                      rounded
+                      shadow
+                    ">
+                      <button
+                        onClick={() => handleEdit(transaction)}
+                        className="p-2 hover:bg-blue-50 rounded text-blue-600"
+                        aria-label="Edit transaction"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(transaction.id)}
+                        className="p-2 hover:bg-red-50 rounded text-red-600"
+                        aria-label="Delete transaction"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
 
@@ -250,11 +321,11 @@ export function TransactionsList({ transactions, categories }: Props) {
             >
               ← Previous
             </button>
-            
+
             <span className="text-sm text-gray-600">
               Page {currentPage} of {totalPages}
             </span>
-            
+
             <button
               onClick={goToNextPage}
               disabled={currentPage === totalPages}

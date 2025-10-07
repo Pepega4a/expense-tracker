@@ -34,6 +34,7 @@ model Transaction {
   description String?
   date        DateTime  @default(now())
   type        String
+  currency    String   @default("USD")
   
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
